@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Flow Manifest v1",
+  "type": "object",
+  "required": [
+    "version",
+    "created_at",
+    "tool",
+    "entries",
+    "integrity"
+  ],
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "tool": {
+      "type": "object"
+    },
+    "capture": {
+      "type": "object"
+    },
+    "entries": {
+      "type": "array"
+    },
+    "integrity": {
+      "type": "object"
+    },
+    "signature": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  }
+}

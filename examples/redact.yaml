@@ -1,0 +1,9 @@
+headers:
+  redact_keys: ["authorization","x-api-key","cookie"]
+json:
+  redact_paths:
+    - "$.password"
+    - "$.token"
+    - "$.secret"
+size_caps:
+  per_entry_mb: 50

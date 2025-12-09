@@ -1,0 +1,49 @@
+[package]
+name = "flow"
+version = "1.1.0"
+edition = "2021"
+authors = ["Flow Contributors"]
+description = "Deterministic HTTP record→replay→verify with cryptographic proof trails."
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+rust-version = "1.78"
+
+[features]
+default = ["hardened"]
+hardened = []
+tls-intercept = ["rustls", "tokio-rustls"]
+
+[dependencies]
+anyhow = "1.0"
+blake3 = "1.5"
+bytes = "1.7"
+clap = { version = "4.5", features = ["derive"] }
+ed25519-dalek = { version = "2.1", features = ["pkcs8"] }
+hex = "0.4"
+http = "1.1"
+hyper = { version = "1.4", features = ["http1","client","server"] }
+hyper-util = { version = "0.1", features = ["client-legacy","server-auto","http1"] }
+httparse = "1.9"
+rand = "0.8"
+regex = "1.11"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+time = { version = "0.3", features = ["formatting"] }
+tokio = { version = "1.40", features = ["full"] }
+tokio-util = "0.7"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt","env-filter","json"] }
+url = "2.5"
+zip = { version = "2.1", default-features = false, features = ["deflate"] }
+chrono = { version = "0.4", features = ["clock","serde"] }
+tempfile = "3.10"
+
+rustls = { version = "0.23", optional = true }
+tokio-rustls = { version = "0.26", optional = true }
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "3.1"
+tempfile = "3.10"
+wait-timeout = "0.2"

@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+jobs:
+  test:
+    name: Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust@v1
+        with:
+          rust-version: stable
+      - name: Cargo fmt
+        run: cargo fmt -- --check
+      - name: Cargo clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Cargo test
+        run: cargo test --all
+
+  release:
+    name: Release (${{ matrix.os }})
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux-x86_64
+            binary: target/release/flow
+          - os: macos-latest
+            target: macos-arm64
+            binary: target/release/flow
+          - os: windows-latest
+            target: windows-x86_64
+            binary: target/release/flow.exe
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust@v1
+        with:
+          rust-version: stable
+      - name: Cargo build (release)
+        run: cargo build --release
+      - name: Package artifacts (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          ARTIFACT="flow-${{ matrix.target }}"
+          ARCHIVE="${ARTIFACT}.tar.gz"
+          tar -czf "$ARCHIVE" -C target/release flow
+          shasum -a 256 "$ARCHIVE" > "${ARCHIVE}.sha256"
+          echo "ARCHIVE=$ARCHIVE" >> $GITHUB_ENV
+      - name: Package artifacts (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $Artifact = "flow-${{ matrix.target }}"
+          $Archive = "$Artifact.tar.gz"
+          tar -czf $Archive -C target/release flow.exe
+          $hash = Get-FileHash $Archive -Algorithm SHA256
+          "$($hash.Hash)  $Archive" | Out-File "$Archive.sha256"
+          Add-Content -Path $env:GITHUB_ENV -Value "ARCHIVE=$Archive"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARCHIVE }}
+          path: |
+            ${{ env.ARCHIVE }}
+            ${{ env.ARCHIVE }}.sha256

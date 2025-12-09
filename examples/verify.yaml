@@ -1,0 +1,8 @@
+status: { allow: [200, 201] }
+headers:
+  require: ["content-type: text/html"]
+json:
+  equal: false
+  ignore_fields: []
+timing:
+  max_latency_ms: 5000
